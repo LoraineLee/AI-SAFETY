@@ -93,6 +93,11 @@ Custom fetch implementation. You can use it as a middleware to intercept request
 or to provide a custom fetch implementation for e.g. testing.
     */
   fetch?: FetchFunction;
+
+  /**
+   * Function for retrieving a bearer token via @azure/identity. This is used to authenticate requests to Azure OpenAI through Managed Identity.
+   */
+  identityTokenProvider?: () => Promise<string>;
 }
 
 /**
@@ -101,14 +106,25 @@ Create an Azure OpenAI provider instance.
 export function createAzure(
   options: AzureOpenAIProviderSettings = {},
 ): AzureOpenAIProvider {
-  const getHeaders = () => ({
-    'api-key': loadApiKey({
-      apiKey: options.apiKey,
-      environmentVariableName: 'AZURE_API_KEY',
-      description: 'Azure OpenAI',
-    }),
-    ...options.headers,
-  });
+  if (typeof options.identityTokenProvider === 'function' && options.apiKey) {
+    throw new Error(
+      'identityTokenProvider and apiKey are mutually exclusive, please use only one of them to authenticate requests to Azure OpenAI',
+    );
+  }
+
+  const getHeaders = () => {
+    const baseHeaders = { ...options.headers };
+
+    if (typeof options.identityTokenProvider !== 'function') {
+      baseHeaders['api-key'] = loadApiKey({
+        apiKey: options.apiKey,
+        environmentVariableName: 'AZURE_API_KEY',
+        description: 'Azure OpenAI',
+      });
+    }
+
+    return baseHeaders;
+  };
 
   const getResourceName = () =>
     loadSetting({
@@ -123,6 +139,34 @@ export function createAzure(
       ? `${options.baseURL}/${modelId}${path}?api-version=2024-08-01-preview`
       : `https://${getResourceName()}.openai.azure.com/openai/deployments/${modelId}${path}?api-version=2024-08-01-preview`;
 
+  // Fetch wrapper to inject Authorization header if using managed identity
+  const fetchTokenWrapper: FetchFunction = async (input, init) => {
+    const baseFetch = options.fetch || globalThis.fetch;
+
+    if (typeof options.identityTokenProvider !== 'function') {
+      return baseFetch(input as RequestInfo, init);
+    }
+
+    try {
+      const token = await options.identityTokenProvider();
+      if (!token || typeof token !== 'string') {
+        throw new Error(
+          `Invalid token received from identityTokenProvider: ${token}`,
+        );
+      }
+
+      const modifiedInit: RequestInit = {
+        ...init,
+        headers: new Headers(init?.headers),
+      };
+      (modifiedInit.headers as Headers).set('Authorization', `Bearer ${token}`);
+
+      return baseFetch(input as RequestInfo, modifiedInit);
+    } catch (error) {
+      throw new Error(`Error getting Azure identity token: ${error}`);
+    }
+  };
+
   const createChatModel = (
     deploymentName: string,
     settings: OpenAIChatSettings = {},
@@ -132,7 +176,7 @@ export function createAzure(
       url,
       headers: getHeaders,
       compatibility: 'strict',
-      fetch: options.fetch,
+      fetch: fetchTokenWrapper,
     });
 
   const createCompletionModel = (
@@ -144,7 +188,7 @@ export function createAzure(
       url,
       compatibility: 'strict',
       headers: getHeaders,
-      fetch: options.fetch,
+      fetch: fetchTokenWrapper,
     });
 
   const createEmbeddingModel = (
@@ -155,7 +199,7 @@ export function createAzure(
       provider: 'azure-openai.embeddings',
       headers: getHeaders,
       url,
-      fetch: options.fetch,
+      fetch: fetchTokenWrapper,
     });
 
   const provider = function (

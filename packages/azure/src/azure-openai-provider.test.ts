@@ -284,3 +284,93 @@ describe('embedding', () => {
     });
   });
 });
+
+describe('createAzure', () => {
+  it('should throw error when both identityTokenProvider and apiKey are provided', () => {
+    expect(() =>
+      createAzure({
+        apiKey: 'test-api-key',
+        identityTokenProvider: () => Promise.resolve('test-token'),
+      }),
+    ).toThrow(
+      'identityTokenProvider and apiKey are mutually exclusive, please use only one of them to authenticate requests to Azure OpenAI',
+    );
+  });
+
+  describe('with identityTokenProvider', () => {
+    const server = new JsonTestServer(
+      'https://test-resource.openai.azure.com/openai/deployments/test-deployment/chat/completions',
+    );
+
+    server.setupTestEnvironment();
+
+    it('should use token from identityTokenProvider', async () => {
+      const provider = createAzure({
+        resourceName: 'test-resource',
+        identityTokenProvider: () => Promise.resolve('test-azure-token'),
+      });
+
+      // Setup mock response
+      server.responseBodyJson = {
+        id: 'chatcmpl-123',
+        object: 'chat.completion',
+        created: 1711115037,
+        choices: [
+          {
+            index: 0,
+            message: {
+              role: 'assistant',
+              content: 'Hello',
+            },
+            finish_reason: 'stop',
+          },
+        ],
+      };
+
+      await provider('test-deployment').doGenerate({
+        inputFormat: 'prompt',
+        mode: { type: 'regular' },
+        prompt: TEST_PROMPT,
+      });
+
+      const requestHeaders = await server.getRequestHeaders();
+      console.log(requestHeaders);
+      expect(requestHeaders['authorization']).toBe('Bearer test-azure-token');
+    });
+
+    it('should throw error when identityTokenProvider returns invalid token', async () => {
+      const provider = createAzure({
+        resourceName: 'test-resource',
+        identityTokenProvider: () => Promise.resolve(null as any),
+      });
+
+      await expect(
+        provider('test-deployment').doGenerate({
+          inputFormat: 'prompt',
+          mode: { type: 'regular' },
+          prompt: TEST_PROMPT,
+        }),
+      ).rejects.toThrow(
+        'Invalid token received from identityTokenProvider: null',
+      );
+    });
+
+    it('should throw error when identityTokenProvider fails', async () => {
+      const provider = createAzure({
+        resourceName: 'test-resource',
+        identityTokenProvider: () =>
+          Promise.reject(new Error('Token fetch failed')),
+      });
+
+      await expect(
+        provider('test-deployment').doGenerate({
+          inputFormat: 'prompt',
+          mode: { type: 'regular' },
+          prompt: TEST_PROMPT,
+        }),
+      ).rejects.toThrow(
+        'Error getting Azure identity token: Error: Token fetch failed',
+      );
+    });
+  });
+});
