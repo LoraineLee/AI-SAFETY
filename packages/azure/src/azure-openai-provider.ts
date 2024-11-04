@@ -147,24 +147,26 @@ export function createAzure(
       return baseFetch(input as RequestInfo, init);
     }
 
+    let token: string;
+
     try {
-      const token = await options.identityTokenProvider();
-      if (!token || typeof token !== 'string') {
-        throw new Error(
-          `Invalid token received from identityTokenProvider: ${token}`,
-        );
-      }
-
-      const modifiedInit: RequestInit = {
-        ...init,
-        headers: new Headers(init?.headers),
-      };
-      (modifiedInit.headers as Headers).set('Authorization', `Bearer ${token}`);
-
-      return baseFetch(input as RequestInfo, modifiedInit);
+      token = await options.identityTokenProvider();
     } catch (error) {
       throw new Error(`Error getting Azure identity token: ${error}`);
     }
+    if (!token || typeof token !== 'string') {
+      throw new Error(
+        `Invalid token received from identityTokenProvider: ${token}`,
+      );
+    }
+
+    const modifiedInit: RequestInit = {
+      ...init,
+      headers: new Headers(init?.headers),
+    };
+    (modifiedInit.headers as Headers).set('Authorization', `Bearer ${token}`);
+
+    return baseFetch(input as RequestInfo, modifiedInit);
   };
 
   const createChatModel = (
