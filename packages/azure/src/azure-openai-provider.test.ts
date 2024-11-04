@@ -334,7 +334,6 @@ describe('createAzure', () => {
       });
 
       const requestHeaders = await server.getRequestHeaders();
-      console.log(requestHeaders);
       expect(requestHeaders['authorization']).toBe('Bearer test-azure-token');
     });
 
