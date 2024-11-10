@@ -413,6 +413,17 @@ const finishStepStreamPart: StreamPart<
   },
 };
 
+const idStreamPart: StreamPart<'f', 'id', string> = {
+  code: 'f',
+  name: 'id',
+  parse: (value: JSONValue) => {
+    if (typeof value !== 'string') {
+      throw new Error('"id" parts expect a string value.');
+    }
+    return { type: 'id', value };
+  },
+};
+
 const streamParts = [
   textStreamPart,
   dataStreamPart,
@@ -427,6 +438,7 @@ const streamParts = [
   toolCallDeltaStreamPart,
   finishMessageStreamPart,
   finishStepStreamPart,
+  idStreamPart,
 ] as const;
 
 // union type of all stream parts
@@ -443,7 +455,8 @@ type StreamParts =
   | typeof toolCallStreamingStartStreamPart
   | typeof toolCallDeltaStreamPart
   | typeof finishMessageStreamPart
-  | typeof finishStepStreamPart;
+  | typeof finishStepStreamPart
+  | typeof idStreamPart;
 
 /**
  * Maps the type of a stream part to its value type.
@@ -465,7 +478,8 @@ export type StreamPartType =
   | ReturnType<typeof toolCallStreamingStartStreamPart.parse>
   | ReturnType<typeof toolCallDeltaStreamPart.parse>
   | ReturnType<typeof finishMessageStreamPart.parse>
-  | ReturnType<typeof finishStepStreamPart.parse>;
+  | ReturnType<typeof finishStepStreamPart.parse>
+  | ReturnType<typeof idStreamPart.parse>;
 
 export const streamPartsByCode = {
   [textStreamPart.code]: textStreamPart,
@@ -481,11 +495,12 @@ export const streamPartsByCode = {
   [toolCallDeltaStreamPart.code]: toolCallDeltaStreamPart,
   [finishMessageStreamPart.code]: finishMessageStreamPart,
   [finishStepStreamPart.code]: finishStepStreamPart,
+  [idStreamPart.code]: idStreamPart,
 } as const;
 
 /**
  * The map of prefixes for data in the stream
- *
+ * - f: ID
  * - 0: Text from the LLM response
  * - 1: (OpenAI) function_call responses
  * - 2: custom JSON added by the user using `Data`
@@ -493,6 +508,7 @@ export const streamPartsByCode = {
  *
  * Example:
  * ```
+ * f:V1StGXR8_Z5jdHi6B-myT
  * 0:Vercel
  * 0:'s
  * 0: AI
@@ -520,6 +536,7 @@ export const StreamStringPrefixes = {
   [toolCallDeltaStreamPart.name]: toolCallDeltaStreamPart.code,
   [finishMessageStreamPart.name]: finishMessageStreamPart.code,
   [finishStepStreamPart.name]: finishStepStreamPart.code,
+  [idStreamPart.name]: idStreamPart.code,
 } as const;
 
 export const validCodes = streamParts.map(part => part.code);

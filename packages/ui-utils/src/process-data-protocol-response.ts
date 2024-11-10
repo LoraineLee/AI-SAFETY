@@ -122,6 +122,19 @@ export async function processDataProtocolResponse({
       nextMessage = undefined;
     }
 
+    if (type === 'id') {
+      if (!prefixMap['text']) {
+        prefixMap['text'] = {
+          id: value,
+          role: 'assistant',
+          content: value,
+          createdAt,
+        };
+      } else {
+        throw new TypeError('id must be the first message in the stream');
+      }
+    }
+
     if (type === 'text') {
       if (currentMessage['message']) {
         currentMessage['message'] = {
