@@ -140,7 +140,7 @@ exports[`options.maxSteps > 2 steps: initial, tool-result > onStepFinish should 
 ]
 `;
 
-exports[`options.maxSteps > 2 steps: initial, tool-result > result.responseMessages should contain response messages from all steps 1`] = `
+exports[`options.maxSteps > 2 steps: initial, tool-result > result.response.messages should contain response messages from all steps 1`] = `
 [
   {
     "content": [
@@ -322,7 +322,7 @@ exports[`options.maxSteps > 2 steps: initial, tool-result > result.steps should 
 ]
 `;
 
-exports[`options.maxSteps > 3 steps: initial, continue, continue > onStepFinish should be called for each step 1`] = `
+exports[`options.maxSteps > 4 steps: initial, continue, continue, continue > onStepFinish should be called for each step 1`] = `
 [
   {
     "experimental_providerMetadata": undefined,
@@ -403,8 +403,8 @@ exports[`options.maxSteps > 3 steps: initial, continue, continue > onStepFinish 
   },
   {
     "experimental_providerMetadata": undefined,
-    "finishReason": "stop",
-    "isContinued": false,
+    "finishReason": "length",
+    "isContinued": true,
     "logprobs": undefined,
     "request": {},
     "response": {
@@ -420,6 +420,53 @@ exports[`options.maxSteps > 3 steps: initial, continue, continue > onStepFinish 
             },
             {
               "text": "no-whitespace",
+              "type": "text",
+            },
+            {
+              "text": "immediatefollow  ",
+              "type": "text",
+            },
+          ],
+          "role": "assistant",
+        },
+      ],
+      "modelId": "test-response-model-id",
+      "timestamp": 1970-01-01T00:00:20.000Z,
+    },
+    "stepType": "continue",
+    "text": "immediatefollow  ",
+    "toolCalls": [],
+    "toolResults": [],
+    "usage": {
+      "completionTokens": 2,
+      "promptTokens": 3,
+      "totalTokens": 5,
+    },
+    "warnings": undefined,
+  },
+  {
+    "experimental_providerMetadata": undefined,
+    "finishReason": "stop",
+    "isContinued": false,
+    "logprobs": undefined,
+    "request": {},
+    "response": {
+      "headers": undefined,
+      "id": "test-id-4-from-model",
+      "messages": [
+        {
+          "content": [
+            {
+              "text": "part 1 
+ ",
+              "type": "text",
+            },
+            {
+              "text": "no-whitespace",
+              "type": "text",
+            },
+            {
+              "text": "immediatefollow  ",
               "type": "text",
             },
             {
@@ -449,7 +496,7 @@ exports[`options.maxSteps > 3 steps: initial, continue, continue > onStepFinish 
 ]
 `;
 
-exports[`options.maxSteps > 3 steps: initial, continue, continue > result.steps should contain all steps 1`] = `
+exports[`options.maxSteps > 4 steps: initial, continue, continue, continue > result.steps should contain all steps 1`] = `
 [
   {
     "experimental_providerMetadata": undefined,
@@ -530,8 +577,8 @@ exports[`options.maxSteps > 3 steps: initial, continue, continue > result.steps 
   },
   {
     "experimental_providerMetadata": undefined,
-    "finishReason": "stop",
-    "isContinued": false,
+    "finishReason": "length",
+    "isContinued": true,
     "logprobs": undefined,
     "request": {},
     "response": {
@@ -547,6 +594,53 @@ exports[`options.maxSteps > 3 steps: initial, continue, continue > result.steps 
             },
             {
               "text": "no-whitespace",
+              "type": "text",
+            },
+            {
+              "text": "immediatefollow  ",
+              "type": "text",
+            },
+          ],
+          "role": "assistant",
+        },
+      ],
+      "modelId": "test-response-model-id",
+      "timestamp": 1970-01-01T00:00:20.000Z,
+    },
+    "stepType": "continue",
+    "text": "immediatefollow  ",
+    "toolCalls": [],
+    "toolResults": [],
+    "usage": {
+      "completionTokens": 2,
+      "promptTokens": 3,
+      "totalTokens": 5,
+    },
+    "warnings": undefined,
+  },
+  {
+    "experimental_providerMetadata": undefined,
+    "finishReason": "stop",
+    "isContinued": false,
+    "logprobs": undefined,
+    "request": {},
+    "response": {
+      "headers": undefined,
+      "id": "test-id-4-from-model",
+      "messages": [
+        {
+          "content": [
+            {
+              "text": "part 1 
+ ",
+              "type": "text",
+            },
+            {
+              "text": "no-whitespace",
+              "type": "text",
+            },
+            {
+              "text": "immediatefollow  ",
               "type": "text",
             },
             {
@@ -598,7 +692,7 @@ exports[`result.response > should contain response information 1`] = `
 }
 `;
 
-exports[`result.responseMessages > should contain assistant response message and tool message when there are tool calls with results 1`] = `
+exports[`result.response.messages > should contain assistant response message and tool message when there are tool calls with results 1`] = `
 [
   {
     "content": [
@@ -631,7 +725,7 @@ exports[`result.responseMessages > should contain assistant response message and
 ]
 `;
 
-exports[`result.responseMessages > should contain assistant response message when there are no tool calls 1`] = `
+exports[`result.response.messages > should contain assistant response message when there are no tool calls 1`] = `
 [
   {
     "content": [
@@ -651,7 +745,6 @@ exports[`telemetry > should not record telemetry inputs / outputs when disabled 
 [
   {
     "attributes": {
-      "ai.finishReason": "stop",
       "ai.model.id": "mock-model-id",
       "ai.model.provider": "mock-provider",
       "ai.operationId": "ai.generateText",
@@ -666,7 +759,6 @@ exports[`telemetry > should not record telemetry inputs / outputs when disabled 
   },
   {
     "attributes": {
-      "ai.finishReason": "stop",
       "ai.model.id": "mock-model-id",
       "ai.model.provider": "mock-provider",
       "ai.operationId": "ai.generateText.doGenerate",
@@ -707,14 +799,12 @@ exports[`telemetry > should record successful tool call 1`] = `
 [
   {
     "attributes": {
-      "ai.finishReason": "stop",
       "ai.model.id": "mock-model-id",
       "ai.model.provider": "mock-provider",
       "ai.operationId": "ai.generateText",
       "ai.prompt": "{"prompt":"test-input"}",
       "ai.response.finishReason": "stop",
       "ai.response.toolCalls": "[{"toolCallType":"function","toolCallId":"call-1","toolName":"tool1","args":"{ \\"value\\": \\"value\\" }"}]",
-      "ai.result.toolCalls": "[{"toolCallType":"function","toolCallId":"call-1","toolName":"tool1","args":"{ \\"value\\": \\"value\\" }"}]",
       "ai.settings.maxSteps": 1,
       "ai.usage.completionTokens": 20,
       "ai.usage.promptTokens": 10,
@@ -725,7 +815,6 @@ exports[`telemetry > should record successful tool call 1`] = `
   },
   {
     "attributes": {
-      "ai.finishReason": "stop",
       "ai.model.id": "mock-model-id",
       "ai.model.provider": "mock-provider",
       "ai.operationId": "ai.generateText.doGenerate",
@@ -740,7 +829,6 @@ exports[`telemetry > should record successful tool call 1`] = `
       "ai.response.model": "mock-model-id",
       "ai.response.timestamp": "1970-01-01T00:00:00.000Z",
       "ai.response.toolCalls": "[{"toolCallType":"function","toolCallId":"call-1","toolName":"tool1","args":"{ \\"value\\": \\"value\\" }"}]",
-      "ai.result.toolCalls": "[{"toolCallType":"function","toolCallId":"call-1","toolName":"tool1","args":"{ \\"value\\": \\"value\\" }"}]",
       "ai.usage.completionTokens": 20,
       "ai.usage.promptTokens": 10,
       "gen_ai.request.model": "mock-model-id",
@@ -776,7 +864,6 @@ exports[`telemetry > should record telemetry data when enabled 1`] = `
 [
   {
     "attributes": {
-      "ai.finishReason": "stop",
       "ai.model.id": "mock-model-id",
       "ai.model.provider": "mock-provider",
       "ai.operationId": "ai.generateText",
@@ -785,7 +872,6 @@ exports[`telemetry > should record telemetry data when enabled 1`] = `
       "ai.request.headers.header2": "value2",
       "ai.response.finishReason": "stop",
       "ai.response.text": "Hello, world!",
-      "ai.result.text": "Hello, world!",
       "ai.settings.frequencyPenalty": 0.3,
       "ai.settings.maxSteps": 1,
       "ai.settings.presencePenalty": 0.4,
@@ -808,7 +894,6 @@ exports[`telemetry > should record telemetry data when enabled 1`] = `
   },
   {
     "attributes": {
-      "ai.finishReason": "stop",
       "ai.model.id": "mock-model-id",
       "ai.model.provider": "mock-provider",
       "ai.operationId": "ai.generateText.doGenerate",
@@ -821,7 +906,6 @@ exports[`telemetry > should record telemetry data when enabled 1`] = `
       "ai.response.model": "test-response-model-id",
       "ai.response.text": "Hello, world!",
       "ai.response.timestamp": "1970-01-01T00:00:10.000Z",
-      "ai.result.text": "Hello, world!",
       "ai.settings.frequencyPenalty": 0.3,
       "ai.settings.presencePenalty": 0.4,
       "ai.settings.stopSequences": [
