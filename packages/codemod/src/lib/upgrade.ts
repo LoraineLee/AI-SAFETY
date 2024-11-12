@@ -10,6 +10,7 @@ const bundle = [
   'replace-baseurl',
   'replace-nanoid',
   'rewrite-framework-imports',
+  'replace-roundtrips-with-maxsteps',
 ];
 
 function validatePreconditions(cwd: string) {
