@@ -12,7 +12,7 @@
     "@ai-sdk/openai": "1.0.0-canary.3",
     "@ai-sdk/react": "1.0.0-canary.7",
     "@opentelemetry/api-logs": "0.52.1",
-    "@opentelemetry/instrumentation": "0.52.1",
+    "@opentelemetry/instrumentation": "0.57.1",
     "@opentelemetry/sdk-logs": "0.54.2",
     "@sentry/nextjs": "^8.22.0",
     "@sentry/opentelemetry": "8.22.0",
